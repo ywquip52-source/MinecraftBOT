@@ -1,53 +1,74 @@
-// === Minecraft Bot с рабочим SOCKS5 прокси ===
-
 const mineflayer = require('mineflayer');
-const { ProxyAgent } = require('minecraft-proxy-agent');
+const { SocksProxyAgent } = require('socks-proxy-agent');
 
-// Функция запуска бота
+// ТВОЙ SOCKS5 прокси
+const proxy = 'socks5://JkmtNe:SqDC6m@213.139.223.211:9584';
+
+// Настройки сервера и аккаунта
+const server = 'play.funtime.su';
+const username = 'Chuckleoop'; // ник
+
 function startBot() {
   const bot = mineflayer.createBot({
-    host: 'play.funtime.su', // IP сервера
-    port: 25565,             // Порт (обычно 25565)
-    username: 'Chuckleoop',  // Ник бота
-    version: '1.16.5',       // Версия сервера
-    agent: new ProxyAgent({  // Настройки прокси
-      protocol: 'socks5',
-      host: '213.139.223.211', // IP прокси
-      port: 9584,               // Порт прокси
-      username: 'JkmtNe',       // Логин от прокси
-      password: 'SqDC6m'        // Пароль от прокси
-    })
+    host: server,
+    username: username,
+    version: '1.16.5',
+    agent: new SocksProxyAgent(proxy) // через прокси
   });
 
-  // ===== События для отладки =====
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
-  bot.on('login', () => {
-    console.log('✅ Бот успешно вошёл на сервер!');
-  });
+  async function botCycle() {
+    try {
+      console.log('✅ Бот зашёл на сервер');
 
-  bot.on('spawn', () => {
-    console.log('🌍 Бот появился в мире!');
-  });
+      bot.chat('/an215');
+      console.log('📩 Бот написал: /an215');
+      await sleep(2000);
 
+      bot.chat('/home home');
+      console.log('📩 Бот написал: /home home');
+
+      // Повороты головы
+      const headInterval = setInterval(() => {
+        const yaw = Math.random() * Math.PI * 2;
+        const pitch = (Math.random() - 0.5) * 0.5;
+        bot.look(yaw, pitch, true);
+      }, 5000);
+
+      console.log('⏱ Ждём 4 минуты с лёгкой активностью...');
+      await sleep(240000);
+
+      clearInterval(headInterval);
+
+      bot.chat('/hub');
+      console.log('📩 Бот написал: /hub');
+
+      await sleep(7000);
+      console.log('🔄 Повторяем цикл...');
+      botCycle();
+
+    } catch (err) {
+      console.log('❌ Ошибка в цикле:', err.message);
+    }
+  }
+
+  // Когда бот зашёл — запускаем цикл
+  bot.once('spawn', botCycle);
+
+  // Если бот был кикнут — выводим причину
   bot.on('kicked', (reason) => {
     console.log('❌ Бот был кикнут. raw reason:', reason);
-    try {
-      const parsed = JSON.parse(reason);
-      console.log('📣 Текст причины:', parsed);
-    } catch {
-      console.log('📣 Текст причины (обычный):', reason);
-    }
   });
 
+  // Ошибки
   bot.on('error', (err) => {
-    console.log('⚠️ Ошибка подключения:', err);
+    console.log('❌ Ошибка:', err.message);
   });
 
+  // Если бот вылетел — перезапуск
   bot.on('end', () => {
     console.log('🚪 Бот отключился. Перезапуск через 10 секунд...');
-    setTimeout(startBot, 10000);
-  });
-}
-
-// Запуск бота
-startBot();
+    setTimeout(() => {

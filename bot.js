@@ -1,3 +1,4 @@
+const util = require('util');
 const mineflayer = require('mineflayer');
 const { SocksProxyAgent } = require('socks-proxy-agent');
 
@@ -44,7 +45,7 @@ function startBot() {
       botCycle(); // повтор
 
     } catch (err) {
-      console.log('❌ Ошибка в цикле:', err.message);
+      console.log('❌ Ошибка в цикле:', err && err.message ? err.message : err);
     }
   }
 
@@ -52,6 +53,22 @@ function startBot() {
     botCycle();
   });
 
+  // === Новое: логирование причин киков ===
+  // Этот обработчик будет печатать в лог точную причину, если сервер кикнет бота.
+  bot.on('kicked', (reason, loggedIn) => {
+    console.log('❌ Бот был кикнут. raw reason:', util.inspect(reason, { depth: 4 }));
+    console.log('🔎 loggedIn:', loggedIn);
+    // Если reason — объект с текстом, попробуем показать текст:
+    try {
+      if (reason && reason.toString) {
+        console.log('📣 Текст причины:', reason.toString());
+      }
+    } catch (e) {
+      // ничего не делаем
+    }
+  });
+
+  // Оставляем обработчики ошибок/разрыва
   bot.on('end', () => {
     console.log('🚪 Бот отключился. Перезапуск через 10 секунд...');
     setTimeout(() => {
@@ -60,9 +77,8 @@ function startBot() {
   });
 
   bot.on('error', (err) => {
-    console.log('❌ Ошибка:', err.message);
+    console.log('❌ Ошибка:', err && err.message ? err.message : err);
   });
 }
 
 startBot();
-

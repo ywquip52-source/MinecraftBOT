@@ -13,7 +13,7 @@ function startBot() {
     host: server,
     username: username,
     version: '1.16.5',
-    agent: new SocksProxyAgent(proxy) // через прокси
+    agent: new SocksProxyAgent(proxy)
   });
 
   function sleep(ms) {
@@ -72,3 +72,9 @@ function startBot() {
   bot.on('end', () => {
     console.log('🚪 Бот отключился. Перезапуск через 10 секунд...');
     setTimeout(() => {
+      startBot();
+    }, 10000);
+  });
+}
+
+startBot();

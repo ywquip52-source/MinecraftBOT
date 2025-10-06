@@ -1,10 +1,12 @@
 const mineflayer = require('mineflayer');
+const { SocksProxyAgent } = require('socks-proxy-agent');
 
 function startBot() {
   let bot = mineflayer.createBot({
     host: 'play.funtime.su',
     username: 'Chuckleoop',
-    version: '1.16.5'
+    version: '1.16.5',
+    agent: new SocksProxyAgent('socks5://JkmtNe:SqDC6m@213.139.223.211:9584')
   });
 
   function sleep(ms) {
@@ -63,3 +65,4 @@ function startBot() {
 }
 
 startBot();
+

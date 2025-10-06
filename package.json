@@ -1,11 +1,13 @@
 {
-  "name": "minecraftbot",
+  "name": "minecraft-bot",
   "version": "1.0.0",
   "main": "bot.js",
+  "license": "MIT",
+  "dependencies": {
+    "mineflayer": "^4.15.0",
+    "socks-proxy-agent": "^8.0.1"
+  },
   "scripts": {
     "start": "node bot.js"
-  },
-  "dependencies": {
-    "mineflayer": "^4.15.0"
   }
 }
